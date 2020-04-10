@@ -89,13 +89,15 @@ class Objeto extends THREE.Object3D{
 
     createSpade(){
         var spadeShape = new THREE.Shape();
-        spadeShape.moveTo(25,25 );
+        spadeShape.moveTo(22,-10 );
+        spadeShape.bezierCurveTo(22,-10 ,25,10, 25,25);
         spadeShape.bezierCurveTo(25,25, 20,0, 0,0 );
         spadeShape.bezierCurveTo(-30,0, -30,35, -30,35 );
         spadeShape.bezierCurveTo(-30,55, -10,77, 25,95 );
         spadeShape.bezierCurveTo(60,77, 80,55, 80,35 );
         spadeShape.bezierCurveTo(80,35, 80,0, 50,0 );
-        spadeShape.bezierCurveTo(35,0, 25,25, 25,25 );
+        spadeShape.bezierCurveTo(35,0, 26,26, 26,26 );
+        spadeShape.bezierCurveTo(26,26, 26,15, 28,-10);
 
         var extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
 
@@ -110,11 +112,11 @@ class Objeto extends THREE.Object3D{
 
     createCloverExtruded(){
         var curve = new THREE.CatmullRomCurve3( [
-            new THREE.Vector3( - 100, - 100, 0 ),
-            new THREE.Vector3( - 50, 0, -50 ),
-            new THREE.Vector3( 0, 100, 100 ),
-            new THREE.Vector3( 50, 150, -30 ),
-            new THREE.Vector3( 100, 200, 0 )
+            new THREE.Vector3( - 50, - 60, 0 ),
+            new THREE.Vector3( - 25, -30, -10 ),
+            new THREE.Vector3( 0, 0, 10 ),
+            new THREE.Vector3( 25, 30, -10 ),
+            new THREE.Vector3( 50, 60, 0 )
         ] );
 
         var cloverShape = new THREE.Shape();
@@ -136,19 +138,19 @@ class Objeto extends THREE.Object3D{
         var material = new THREE.MeshPhongMaterial({color: 0x00FF00});
 
         this.cloverExtruded = new THREE.Mesh( geometry, material );
-        this.cloverExtruded.scale.set(0.02,0.02,0.02);
+        this.cloverExtruded.scale.set(0.03,0.03,0.03);
         this.cloverExtruded.position.set(-1,0.5,0);
-        this.cloverExtruded.rotation.z+=0.8;
+        this.cloverExtruded.rotation.z+=0.7;
         geometry.center();
     }
 
     createHeartExtruded(){
         var curve = new THREE.CatmullRomCurve3( [
-            new THREE.Vector3( - 100, - 100, 0 ),
-            new THREE.Vector3( - 50, 0, -50 ),
-            new THREE.Vector3( 0, 100, 100 ),
-            new THREE.Vector3( 50, 150, -30 ),
-            new THREE.Vector3( 100, 200, 0 )
+            new THREE.Vector3( - 50, - 200, 0 ),
+            new THREE.Vector3( - 25, -100, -10 ),
+            new THREE.Vector3( 0, 0, 10 ),
+            new THREE.Vector3( 25, 100, -10 ),
+            new THREE.Vector3( 50, 200, 0 )
         ] );
 
         var heartShape = new THREE.Shape();
@@ -166,9 +168,9 @@ class Objeto extends THREE.Object3D{
         var material = new THREE.MeshPhongMaterial({color: 0x00FF00});
 
         this.heartExtruded = new THREE.Mesh( geometry, material );
-        this.heartExtruded.scale.set(0.01,0.01,0.01);
+        this.heartExtruded.scale.set(0.005,0.01,0.005);
         this.heartExtruded.position.set(5,0.5,0);
-        this.heartExtruded.rotation.z+=0.8;
+        this.heartExtruded.rotation.z+=0.25;
         geometry.center();
     }
 
@@ -192,7 +194,6 @@ class Objeto extends THREE.Object3D{
             this.meshSpade.rotation.y+=0.01;
             this.heartExtruded.rotation.y+=0.01;
             this.cloverExtruded.rotation.y+=0.01;
-            //this.meshHeart.rotation.z+=0.01;
         }
         
     }
