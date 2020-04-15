@@ -11,13 +11,20 @@ class Objeto extends THREE.Object3D{
         this.createCloverExtruded();
         this.createHeartExtruded()
 
+        this.eje = new THREE.AxesHelper(0.001);
+        this.eje.position.set(2,1,0);
 
-        this.add(this.meshHeart);
-        this.add(this.meshClover);
-        this.add(this.meshDiamond);
-        this.add(this.meshSpade);
-        this.add(this.cloverExtruded);
-        this.add(this.heartExtruded);
+        this.eje.add(this.ejeCorazon);
+        this.eje.add(this.ejeTrebol);
+        this.eje.add(this.ejeRombo);
+        this.eje.add(this.ejePica);
+
+        this.ejeExtruded = new THREE.AxesHelper(0.001);
+        this.ejeExtruded.add(this.cloverExtruded);
+        this.ejeExtruded.add(this.heartExtruded);
+
+        this.add(this.ejeExtruded);
+        this.add(this.eje);
     }
 
     createDiamond(){
@@ -36,8 +43,11 @@ class Objeto extends THREE.Object3D{
 
         this.meshDiamond = new THREE.Mesh( geometry, material );
         this.meshDiamond.scale.set(0.1,0.1,0.1);
-        this.meshDiamond.position.set(1,2,0);
         geometry.center();
+
+        this.ejeRombo = new THREE.AxesHelper(0.001);
+        this.ejeRombo.add(this.meshDiamond);
+        this.ejeRombo.position.set(-1,1,0);
     }
 
     createClover(){
@@ -61,8 +71,11 @@ class Objeto extends THREE.Object3D{
 
         this.meshClover = new THREE.Mesh( geometry, material );
         this.meshClover.scale.set(0.09,0.09,0.09);
-        this.meshClover.position.set(1,0,0);
         geometry.center();
+
+        this.ejeTrebol = new THREE.AxesHelper(0.001);
+        this.ejeTrebol.add(this.meshClover);
+        this.ejeTrebol.position.set(-1,-1,0);
     }
 
     createHeart(){
@@ -82,9 +95,12 @@ class Objeto extends THREE.Object3D{
 
         this.meshHeart = new THREE.Mesh( geometry, material );
         this.meshHeart.scale.set(0.015,0.015,0.015);
-        this.meshHeart.position.set(3,0,0);
         this.meshHeart.rotation.set(3.1456,0,0,0);
         geometry.center();
+
+        this.ejeCorazon = new THREE.AxesHelper(0.001);
+        this.ejeCorazon.add(this.meshHeart);
+        this.ejeCorazon.position.set(1,-1,0);
     }
 
     createSpade(){
@@ -106,8 +122,11 @@ class Objeto extends THREE.Object3D{
 
         this.meshSpade = new THREE.Mesh( geometry, material );
         this.meshSpade.scale.set(0.015,0.015,0.015);
-        this.meshSpade.position.set(3,2,0);
         geometry.center();
+
+        this.ejePica = new THREE.AxesHelper(0.001);
+        this.ejePica.add(this.meshSpade);
+        this.ejePica.position.set(1,1,0);
     }
 
     createCloverExtruded(){
@@ -188,12 +207,20 @@ class Objeto extends THREE.Object3D{
     update(){
 
         if(this.animacion){
-            this.meshHeart.rotation.y-=0.01;
-            this.meshClover.rotation.y+=0.01;
-            this.meshDiamond.rotation.y+=0.01;
-            this.meshSpade.rotation.y+=0.01;
-            this.heartExtruded.rotation.y+=0.01;
-            this.cloverExtruded.rotation.y+=0.01;
+            this.eje.rotation.z += 0.01;
+            this.ejeCorazon.rotation.z-=0.01;
+            this.ejeTrebol.rotation.z-=0.01;
+            this.ejeRombo.rotation.z-=0.01;
+            this.ejePica.rotation.z-=0.01;
+            this.ejeExtruded.rotation.x += 0.01;
+
+            this.meshHeart.rotation.y-=0.02;
+            this.meshClover.rotation.y+=0.02;
+            this.meshDiamond.rotation.y+=0.02;
+            this.meshSpade.rotation.y+=0.02;
+            
+            this.heartExtruded.rotation.y+=0.02;
+            this.cloverExtruded.rotation.y+=0.02;
         }
         
     }
