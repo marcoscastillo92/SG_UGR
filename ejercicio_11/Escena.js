@@ -9,10 +9,10 @@ class Escena extends THREE.Scene{
         this.crearSuelo();
 
         //Crear eje y añadirlo a escena
-        this.eje = new THREE.AxesHelper();
+        this.eje = new THREE.AxesHelper(0.00001);
         this.add(this.eje);
 
-        this.objeto = new Objeto(this.gui, 'Controles cilindro: ');
+        this.objeto = new Objeto();
         this.eje.add(this.objeto);
         
     }
@@ -24,7 +24,7 @@ class Escena extends THREE.Scene{
         var suelo = new THREE.Mesh(geometriaSuelo,materialSuelo);
         suelo.receiveShadow = true;
 
-        suelo.position.y = -0.2;
+        suelo.position.y = -3.2;
 
         this.add(suelo);
     }

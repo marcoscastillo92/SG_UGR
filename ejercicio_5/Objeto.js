@@ -14,7 +14,7 @@ class Objeto extends THREE.Object3D{
     }
 
     createTaza(){
-        var material = new THREE.MeshPhongMaterial();
+        var material = new THREE.MeshNormalMaterial();
         var cilindroGeo = new THREE.CylinderGeometry( 5, 5, 20, 32 );
         var torusGeo = new THREE.TorusGeometry( 10, 3, 16, 100 );
 
@@ -40,7 +40,7 @@ class Objeto extends THREE.Object3D{
     }
 
     createSoporte(){
-        var material = new THREE.MeshPhongMaterial();
+        var material = new THREE.MeshNormalMaterial();
         var holeGeo = new THREE.CylinderGeometry( 1, 1, 20, 32 );
         var boxGeo = new THREE.BoxGeometry( 2, 2, 1 );
 
@@ -69,38 +69,42 @@ class Objeto extends THREE.Object3D{
     }
 
     createTuerca(){
-        var material = new THREE.MeshPhongMaterial();
-        var cylinderGeo = new THREE.CylinderGeometry( 1.2, 1.2, 20, 32 );
-        var boxGeo = new THREE.BoxGeometry( 2, 1, 1.1 );
+        var material = new THREE.MeshNormalMaterial();
 
-        var boxMesh1 = new THREE.Mesh(boxGeo, material);
-        var boxMesh2 = new THREE.Mesh(boxGeo, material);
-        var boxMesh3 = new THREE.Mesh(boxGeo, material);
-        var cuerpo = new THREE.Mesh(cylinderGeo, material);
-        var cuerpo2 = new THREE.Mesh(cylinderGeo, material);
-        var holeMesh = new THREE.Mesh(cylinderGeo, material);
+        var points = [new THREE.Vector2(0,-5), new THREE.Vector2(15,-5), new THREE.Vector2(15,5), new THREE.Vector2(0,5)];
+        var shapeGeometry = new THREE.LatheGeometry(points, 6, 0, 2*Math.PI);
+        var latheObject = new THREE.Mesh(shapeGeometry,material);
 
-        boxMesh2.rotation.y += Math.PI/3;
-        boxMesh3.rotation.y += 2*Math.PI/3;
+        var pointsInt = [new THREE.Vector2(0,0),new THREE.Vector2(7,0),
+            new THREE.Vector2(7,1),new THREE.Vector2(6,1),
+            new THREE.Vector2(6,2),new THREE.Vector2(7,2),
+            new THREE.Vector2(7,3),new THREE.Vector2(6,3),
+            new THREE.Vector2(6,4),new THREE.Vector2(7,4),
+            new THREE.Vector2(7,5),new THREE.Vector2(6,5),
+            new THREE.Vector2(6,6),new THREE.Vector2(7,6),
+            new THREE.Vector2(7,7),new THREE.Vector2(6,7),
+            new THREE.Vector2(6,8),new THREE.Vector2(7,8),
+            new THREE.Vector2(7,9),new THREE.Vector2(6,9),
+            new THREE.Vector2(6,10),new THREE.Vector2(7,10),
+            new THREE.Vector2(7,11),new THREE.Vector2(6,11),
+            new THREE.Vector2(6,12),new THREE.Vector2(7,12),
+            new THREE.Vector2(7,13),new THREE.Vector2(8,13)
+        ];
 
-        cuerpo2.scale.set(0.87,1,0.87);
-        holeMesh.scale.set(0.5,1,0.5);
-        
-        var geo00 = new ThreeBSP(boxMesh1);
-        var geo01 = new ThreeBSP(boxMesh2);
-        var geo02 = new ThreeBSP(boxMesh3);
-        var geo1 = new ThreeBSP(cuerpo);
-        var geo2 = new ThreeBSP(holeMesh);
-        var geo3 = new ThreeBSP(cuerpo2);
+        var shapeGeometry = new THREE.LatheGeometry(pointsInt, 24, 0, 2*Math.PI);
+        var interior = new THREE.Mesh(shapeGeometry,material);
+        interior.position.y = -6
 
-        var geoF = geo00.union(geo01);
-        var geoR = geoF.union(geo02);
-        var geoD = geo1.subtract(geo3);
-        var geoS = geoD.intersect(geoR); 
-        var geoT = geoR.subtract(geoS);
-        var geoU = geoT.subtract(geo2);
-        this.tuerca = geoU.toMesh(material); 
+        var esferaGeometry = new THREE.SphereGeometry(15.5,24,24);
+        var esfera = new THREE.Mesh(esferaGeometry,material);
 
+        var base = new ThreeBSP(latheObject);
+        var esferaBSP = new ThreeBSP(esfera);
+        var interiorBSP = new ThreeBSP(interior);
+
+        var corners = base.intersect(esferaBSP).subtract(interiorBSP);
+        this.tuerca = corners.toMesh();
+        this.tuerca.scale.set(0.1,0.1,0.1);
         this.tuerca.position.set(-3,0,0);
     }
 

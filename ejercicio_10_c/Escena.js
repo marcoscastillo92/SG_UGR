@@ -13,6 +13,7 @@ class Escena extends THREE.Scene{
         this.add(this.eje);
 
         this.objeto = new Objeto(this.gui, 'Controles cilindro: ');
+        this.objeto.castShadow = true;
         this.eje.add(this.objeto);
         
     }
