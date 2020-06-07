@@ -26,7 +26,7 @@ class Escena extends THREE.Scene{
 
     crearCamara(){
         //Creación de niebla
-        this.fog = new THREE.FogExp2( 0xf0fff0, 0.06 );
+        //this.fog = new THREE.FogExp2( 0xf0fff0, 0.06 );
 
         //Definicion de la camara
         this.camara = new THREE.PerspectiveCamera(80,window.innerWidth/window.innerHeight,0.1,1000);
@@ -54,12 +54,12 @@ class Escena extends THREE.Scene{
 
     async crearSuelo(scene){
         var mtlLoader = new THREE.MTLLoader();
-        await mtlLoader.load( "models/world/world.mtl", async function( materials ) {
+        await mtlLoader.load( "models/flatWorld/flatWorld.mtl", async function( materials ) {
             materials.preload();
 
             var loader = new THREE.OBJLoader();
             loader.setMaterials( materials );
-            loader.load("models/world/world.obj", 
+            loader.load("models/flatWorld/flatWorld.obj", 
                await function ( world ) {
                     // Add the loaded worldect to the scene
                     world.name = "world";
@@ -67,7 +67,9 @@ class Escena extends THREE.Scene{
                     world.receiveShadow = true;
                     //world.scale.set(3,3,3);
                     world.position.y -= 14.4;
-                    world.rotation.y = 2*Math.PI/2.7;
+                    world.position.x = -110;
+                    world.position.z = -110;
+                    world.rotation.y = 2*Math.PI/1.6;
                     scene.add( world );
                 },
 
@@ -130,7 +132,7 @@ class Escena extends THREE.Scene{
         this.camaraControl.update();
         //this.world.rotation.y += 0.01;
         if(this.getObjectByName("world")){
-            this.getObjectByName("world").rotation.z += this.speed;
+            //this.getObjectByName("world").rotation.z += this.speed;
         }
         this.jugador.update();
 
