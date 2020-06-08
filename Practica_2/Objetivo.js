@@ -31,6 +31,7 @@ class Objetivo extends THREE.Object3D{
                 }
             );
         });
+        return this;
     }
 
     update(){

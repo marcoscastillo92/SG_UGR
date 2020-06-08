@@ -18,14 +18,31 @@ class Jugador extends THREE.Object3D{
                     obj.rotation.y = 2*Math.PI/1.6;
                     scene.add( obj );
 
-                    //Animación jugador
-                    tiempo = new THREE.Clock()
-                    var idleJugador = new TWEEN.Tween(obj).to(obj.position.y+1, 4000)
+                    /* //Animación jugador
+                    this.pathIdleJugador = new THREE.CatmullRomCurve3([
+                        new THREE.Vector3( 0, this.position.y, 0 ),
+                        new THREE.Vector3( 0, this.position.y+1, 0 )
+                    ]);
+                    this.tiempo = new THREE.Clock();
+                    var that = this;
+                    this.animacionJugador = new TWEEN.Tween(this.pathIdleJugador.getPointAt(0)).to(this.pathIdleJugador.getPointAt(1), 4000)
                     .easing(TWEEN.Easing.Exponential.InOut)
-                    .yoyo()
                     .repeat(Infinity)
+                    .onStart(function(){
+                        that.tiempo.start();
+                    })
                     .onUpdate(function(){
-                    });
+                        var time = that.tiempo.getElapsedTime();
+                        var looptime = 4000;
+                        var t = (time % looptime) / 4;
+                        if( t <= 1 ){
+                            var posicion = that.pathIdleJugador.getPointAt(t);
+                            that.position.copy(posicion);
+                        }else{
+                            that.position.copy(that.pathIdleJugador.getPointAt(0));
+                            that.tiempo.start();
+                        }
+                    }); */
                 },
 
                 // onProgress callback
@@ -39,9 +56,12 @@ class Jugador extends THREE.Object3D{
                 }
             );
         });
+        return this;
     }
 
     update(){
-        
+        if(this.getObjectByName("jugador")){
+            console.log("EMPIEZA")
+        }
     }
 }
