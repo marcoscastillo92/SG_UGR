@@ -8,7 +8,6 @@ class Escena extends Physijs.Scene{
         //Variables
         this.speed = 1; //fast...slow [0.1 ... n]
         this.mundoCargado = false;
-        document.onkeydown = handleKeyDown;
 
         //Gravedad
         this.setGravity(new THREE.Vector3(0,-10,0));
@@ -162,89 +161,103 @@ class Escena extends Physijs.Scene{
         var that = this;
         setTimeout(function(){
             //Animación jugador
-        this.pathIdleJugador = new THREE.Vector3( that.getObjectByName("jugador").position.x, 0.1, that.getObjectByName("jugador").position.z );
-        /* this.tiempoJugador = new THREE.Clock(); */
-        this.animacionJugador = new TWEEN.Tween(that.getObjectByName("jugador").position).to(this.pathIdleJugador, 250*that.speed)
-        .easing(TWEEN.Easing.Quadratic.In)
-        .repeat(Infinity)
-        .yoyo(true)
-        .onStart(function(){
-            /* that.tiempoJugador.start(); */
-        })
-        .onUpdate(function(){
-            /* var time = that.tiempoJugador.getElapsedTime();
-            var looptime = 1000;
-            var t = (time % looptime) / 1;
-            if( t <= 1 ){
-                var posicion = that.pathIdleJugador.getPointAt(t);
-                that.getObjectByName("jugador").position.copy(posicion);
-            }else{
-                that.getObjectByName("jugador").position.copy(that.pathIdleJugador.getPointAt(0));
-                that.tiempoJugador.start();
-            }  */
-        }).start();
+            this.pathIdleJugador = new THREE.Vector3( that.getObjectByName("jugador").position.x, 0.1, that.getObjectByName("jugador").position.z );
+            /* this.tiempoJugador = new THREE.Clock(); */
+            this.animacionJugador = new TWEEN.Tween(that.getObjectByName("jugador").position).to(this.pathIdleJugador, 250*that.speed)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .repeat(Infinity)
+            .yoyo(true)
+            .onStart(function(){})
+            .onUpdate(function(){})
+            .start();
 
-        var matFisico = Physijs.createMaterial(new THREE.MeshBasicMaterial({color: 0x888888, opacity:0, transparent: true}));
-        that.colliderJugador = new Physijs.BoxMesh(new THREE.BoxGeometry(1,4,1), matFisico);
-        that.colliderJugador.name = "colliderJugador";
-        that.colliderJugador.position.set(10,0,10);
-        that.colliderJugador.scale.set(2.5,2.5,2.5);
-        that.colliderJugador.add(that.getObjectByName("jugador"));
-        //Gestión de colisiones con el objeto jugador
-        that.colliderJugador.addEventListener('collision', function(objeto){
-            if(objeto.name == "Objetivo"){
-                //Sumar puntos
-                objeto.delete();
-            }else if(objeto.name == "Cuchillo" || objeto.name == "Enemigo"){
-                //Mensaje de GAME OVER
-                this.delete();
-            }
-        });
-        that.colliderJugador.addEventListener('keydown', handleKeyDown);
-        scene.add(that.colliderJugador);
+            that.saltarJugador();
+
+            var matFisico = Physijs.createMaterial(new THREE.MeshBasicMaterial({color: 0x888888, opacity:0, transparent: true}));
+            that.colliderJugador = new Physijs.BoxMesh(new THREE.BoxGeometry(1,4,1), matFisico);
+            that.colliderJugador.name = "colliderJugador";
+            that.colliderJugador.position.set(10,2,10);
+            that.colliderJugador.scale.set(2.5,2.5,2.5);
+            that.colliderJugador.add(that.getObjectByName("jugador"));
+            //Gestión de colisiones con el objeto jugador
+            that.colliderJugador.addEventListener('collision', function(objeto){
+                if(objeto.name == "Objetivo"){
+                    //Sumar puntos
+                    objeto.delete();
+                }else if(objeto.name == "Cuchillo" || objeto.name == "Enemigo"){
+                    //Mensaje de GAME OVER
+                    this.delete();
+                }
+            });
+            that.colliderJugador.localizacion = "CENTRO";
+            that.colliderJugador.puedeSaltar = true;
+            scene.add(that.colliderJugador);
         }, 1000);
-        
     }
+
+    saltarJugador(){
+        var that = this;
+        this.pathSaltoJugadorUp = new THREE.Vector3( that.getObjectByName("jugador").position.x, 3, that.getObjectByName("jugador").position.z );
+        this.animacionSalto = new TWEEN.Tween(that.getObjectByName("jugador").position).to(this.pathSaltoJugadorUp, 500*that.speed)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .onUpdate(function(){
+        });
+
+        var that = this;
+        this.pathSaltoJugadorDown = new THREE.Vector3( that.getObjectByName("jugador").position.x, 0.2, that.getObjectByName("jugador").position.z );
+        this.animacionSaltoDown = new TWEEN.Tween(that.getObjectByName("jugador").position).to(this.pathSaltoJugadorDown, 500*that.speed)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .onUpdate(function(){
+        })
+        .onComplete(function(){
+            that.colliderJugador.puedeSaltar = true;
+        });
+    }
+
+    //Lógica de movimiento del jugador
+    moverJugador(event) {
+        var keyCode = event.which;
+        console.log(keyCode)
+        // W (Salto)
+        if (keyCode == 87 || keyCode == 38) {
+            if(this.colliderJugador.puedeSaltar){
+                this.colliderJugador.puedeSaltar = false;
+                var that = this;
+                this.animacionSalto.start().onComplete(function(){that.animacionSaltoDown.start();});
+            }
+            // S ()
+        } else if (keyCode == 83 || keyCode == 40) {
+            // A (Izquierda)
+        } else if (keyCode == 65 || keyCode == 37) {
+            if(this.colliderJugador.localizacion == "CENTRO" && this.colliderJugador.puedeSaltar){
+                this.colliderJugador.localizacion = "IZQUIERDA";
+                this.colliderJugador.position.set(7,2,13);
+            }else if(this.colliderJugador.localizacion == "DERECHA" && this.colliderJugador.puedeSaltar){
+                this.colliderJugador.localizacion = "CENTRO";
+                this.colliderJugador.position.set(10,2,10);
+            }
+            //console.log("A ACCIONADA: "+this.colliderJugador.localizacion)
+            // D (Derecha)
+        } else if (keyCode == 68 || keyCode == 39) {
+            if(this.colliderJugador.localizacion == "CENTRO" && this.colliderJugador.puedeSaltar){
+                this.colliderJugador.localizacion = "DERECHA";
+                this.colliderJugador.position.set(13,2,7);
+                
+            }else if(this.colliderJugador.localizacion == "IZQUIERDA" && this.colliderJugador.puedeSaltar){
+                this.colliderJugador.localizacion = "CENTRO";
+                this.colliderJugador.position.set(10,2,10);
+            }
+            //console.log("D ACCIONADA: "+this.colliderJugador.localizacion)
+            // SPACE (RESET POSITION)
+        } else if (keyCode == 32) {
+            this.colliderJugador.position.set = (10,2,10);
+            this.colliderJugador.localizacion = "CENTRO";
+        }
+    };
+    
 
     crearBarrera(){
 
-    }
-
-    handleKeyDown(keyEvent){
-        switch( keyEvent.keyCode ) {
-            case 37:
-            // Left
-                if(this.getObjectByName("colliderJugador").estado == "CENTRO"){
-
-                }else if(this.getObjectByName("colliderJugador").estado == "DERECHA"){
-                    
-                }else{
-
-                }
-            break;
-            case 39:
-            // Right
-                if(this.getObjectByName("colliderJugador").estado == "CENTRO"){
-
-                }else if(this.getObjectByName("colliderJugador").estado == "IZQUIERDA"){
-                    
-                }else{
-                    
-                }
-            break;
-            case 38:
-            // Up
-            if(this.getObjectByName("colliderJugador").saltando == false){
-                //puede saltar
-            }else{
-                //no salta
-            }
-            break;
-            case 40:
-            // Down
-                
-            break;
-        }
     }
 
     crearLuces(){
@@ -311,9 +324,17 @@ class Escena extends Physijs.Scene{
 }
 
 $(function(){
-    var escena = new Escena("#WebGL-output");
+    this.escena = new Escena("#WebGL-output");
 
-    window.addEventListener("resize", () => escena.onWindowResize());
+    window.addEventListener("resize", () => this.escena.onWindowResize());
 
-    escena.update();
+    document.onkeydown = handleKeyDown;
+
+    this.escena.update();
 });
+
+//document.addEventListener("keydown", document.getElementsByName("scene").moverJugador(this), false);
+
+function handleKeyDown(keyEvent){
+    this.escena.moverJugador(keyEvent);
+} 
