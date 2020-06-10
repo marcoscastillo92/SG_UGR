@@ -23,10 +23,51 @@
                 margin: 0;
                 overflow: hidden;
             }
+            #marcador{
+                position: absolute;
+                background: rgba(0,128,0,0.3);
+                top: 10px;
+                width: fit-content;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: center;
+                z-index: 100;
+                display:block;
+                font-size: 30px;
+            }
+            #resumen{
+                position: absolute;
+                top: 100px;
+                text-align: center;
+                width: 100%;
+                z-index: 100;
+                display: none;
+                font-size: 30px;
+            }
+
+            #cuerpoResumen{
+                background: white;
+                padding: 5px 5px 5px 5px;
+                border-radius: 20%;
+                width: 500px;
+                height: 50%;
+                margin-left: auto;
+                margin-right: auto;
+            }
         </style>
         <link rel="shortcut icon" href="#">
     </head>
     <body>
+        <div id="marcador">Puntuación: 0</div>
+        <div id="resumen">
+            <div id="cuerpoResumen">
+                <br>
+                Has sido eliminado.<br>
+                Obstáculos esquivados: <p id="obstaculos"></p>
+                Puntos obtenidos: <p id="puntuacion"></p>
+                <button onClick="window.location.reload();">Recargar</button>
+            </div>
+        </div>
         <div id="WebGL-output"></div>
     </body>
 </html>
