@@ -24,9 +24,10 @@ class Escena extends Physijs.Scene{
         this.everyPointsSpeed = 10;
         this.addSecondsTimer = 7; //Añade 5 segundos por cada manzana recogida
         this.timer = 60 * 45; //60 fps * 45 segundos (fotogramas de tiempo)
+        this.primeraMuerte = false;
 
         //Gravedad
-        this.setGravity(new THREE.Vector3(0,-10,0));
+        this.setGravity(new THREE.Vector3(0,-20,0));
 
         //Materiales
         this.matFisico = Physijs.createMaterial(new THREE.MeshBasicMaterial({color: 0x888888, opacity:0, transparent: true}),0,0);
@@ -207,8 +208,14 @@ class Escena extends Physijs.Scene{
                     document.getElementById("marcador").innerHTML = "Puntuación: "+that.points;
                     that.remove(that.getObjectByName(objeto.name));
                 }else if(item[1] != "world"){
-                    that.gameOver = true;
-                    that.remove(that.getObjectByName("collider_jugador"));
+                    if(that.primeraMuerte){
+                        that.gameOver = true;
+                        that.remove(that.getObjectByName("collider_jugador"));
+                    }else{
+                        that.remove(that.getObjectByName(objeto.name));
+                        that.primeraMuerte = true;
+                        that.avisoSegundaOportunidad();
+                    }
                 }
             });
             that.colliderJugador.localizacion = "CENTRO";
@@ -240,7 +247,7 @@ class Escena extends Physijs.Scene{
         });
 
         //Animación salto segunda parte jugador
-        this.pathSaltoJugadorDown = new THREE.Vector3( this.getObjectByName("collider_jugador").position.x, 2, this.getObjectByName("collider_jugador").position.z );
+        this.pathSaltoJugadorDown = new THREE.Vector3( this.getObjectByName("collider_jugador").position.x, 2.1, this.getObjectByName("collider_jugador").position.z );
         this.animacionSaltoDown = new TWEEN.Tween(this.getObjectByName("collider_jugador").position).to(this.pathSaltoJugadorDown, 500*this.speed)
         .easing(TWEEN.Easing.Quadratic.In)
         .onComplete(function(){
@@ -380,7 +387,7 @@ class Escena extends Physijs.Scene{
         this.colliderBarrera.addEventListener('collision', function(objeto){
             that.contadorObstaculosEsquivados++;
             that.getObjectByName(objeto.name).setAngularVelocity(new THREE.Vector3(1,0,1));
-            that.getObjectByName(objeto.name).setLinearVelocity(new THREE.Vector3(1,0,1));
+            that.getObjectByName(objeto.name).setLinearVelocity(new THREE.Vector3(100,0,100));
             that.remove(that.getObjectByName(objeto.name));
         });
         this.add(this.colliderBarrera);
@@ -449,6 +456,11 @@ class Escena extends Physijs.Scene{
         
     }
 
+    avisoSegundaOportunidad(){
+        document.getElementById("vidas").innerHTML = "Vidas: 0";
+        document.getElementById("vidas").style.color = "red";
+    }
+
     //Muestra el resumen de puntuación y pausa las físicas y animaciones
     showResume(){
         document.getElementById("obstaculos").innerHTML = this.contadorObstaculosEsquivados;
@@ -468,7 +480,9 @@ class Escena extends Physijs.Scene{
         this.renderizador.render(this, this.camara);
         //Si la partida ha acabado
         if(this.gameOver || this.timer == 0){
-            this.showResume();
+            if(this.primeraMuerte){
+                this.showResume();
+            }
         }
         //Si el juego está pausado no se actualiza la simulación de física ni las animaciones
         if(!this.isPaused){
@@ -476,7 +490,13 @@ class Escena extends Physijs.Scene{
             this.simulate();
             this.countFrames++;
             this.timer--;
-            document.getElementById("tiempo").innerHTML = "Tiempo: " +parseInt(this.timer/60);
+            var tiempoRestante = parseInt(this.timer/60)
+            document.getElementById("tiempo").innerHTML = "Tiempo: " +tiempoRestante;
+            if(tiempoRestante < 20){
+                document.getElementById("tiempo").style.color = "red";
+            }else{
+                document.getElementById("tiempo").style.color = "black";
+            }
             //Llama al instanciador aleatorio cada X frames (120 frames +- 2 segundos)
             if(this.countFrames % this.everyXFrames == 0){
                 this.countFrames = 1; //Para que no desborde
