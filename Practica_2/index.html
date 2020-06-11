@@ -25,11 +25,21 @@
             }
             #marcador{
                 position: absolute;
-                background: rgba(0,128,0,0.3);
                 top: 10px;
                 width: fit-content;
                 margin-left: auto;
                 margin-right: auto;
+                text-align: center;
+                z-index: 100;
+                display:block;
+                font-size: 30px;
+            }
+            #tiempo{
+                position: absolute;
+                float: right;
+                background: rgba(0,128,0,0.3);
+                top: 10px;
+                width: 100%;
                 text-align: center;
                 z-index: 100;
                 display:block;
@@ -54,15 +64,19 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+            #warningTiempo{
+                display: none;
+            }
         </style>
         <link rel="shortcut icon" href="#">
     </head>
     <body>
         <div id="marcador">Puntuación: 0</div>
+        <div id="tiempo">Tiempo: 30</div>
         <div id="resumen">
             <div id="cuerpoResumen">
                 <br>
-                Has sido eliminado.<br>
+                Has sido eliminado<span id="warningTiempo"> por el tiempo</span>.<br>
                 Obstáculos esquivados: <p id="obstaculos"></p>
                 Puntos obtenidos: <p id="puntuacion"></p>
                 <button onClick="window.location.reload();">Recargar</button>

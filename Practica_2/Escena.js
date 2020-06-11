@@ -20,6 +20,10 @@ class Escena extends Physijs.Scene{
         this.gameOver = false;
         this.everyXFrames = 120;
         this.contadorObstaculosEsquivados = 0;
+        this.everyFramesInstance = 20;
+        this.everyPointsSpeed = 10;
+        this.addSecondsTimer = 7; //Añade 5 segundos por cada manzana recogida
+        this.timer = 60 * 45; //60 fps * 45 segundos (fotogramas de tiempo)
 
         //Gravedad
         this.setGravity(new THREE.Vector3(0,-10,0));
@@ -76,6 +80,7 @@ class Escena extends Physijs.Scene{
         this.camaraControl.target = look;
     }
 
+    //Crea el suelo de la escena y su animación en bucle infinito
     crearSuelo(scene){
         var mtlLoader = new THREE.MTLLoader();
         mtlLoader.load( "models/flatWorld/flatWorld.mtl", function( materials ) {
@@ -144,6 +149,7 @@ class Escena extends Physijs.Scene{
         
     }
 
+    //Creación del modelo del jugador y su collider
     crearJugador(scene){
         var mtlLoader = new THREE.MTLLoader();
         mtlLoader.load( "models/aguacate/aguacate.mtl", function( materials ) {
@@ -174,16 +180,8 @@ class Escena extends Physijs.Scene{
             );
         });
         var that = this;
+        //Función que añade el collider al jugador
         setTimeout(function(){
-            //Animación jugador
-            this.pathIdleJugador = new THREE.Vector3( that.getObjectByName("jugador").position.x, 0.1, that.getObjectByName("jugador").position.z );
-            this.animacionJugador = new TWEEN.Tween(that.getObjectByName("jugador").position).to(this.pathIdleJugador, 250*that.speed)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .repeat(Infinity)
-            .yoyo(true)
-            .onStart(function(){})
-            .onUpdate(function(){})
-            .start();
             that.colliderJugador = new Physijs.BoxMesh(new THREE.BoxGeometry(1.5,4,1),that.matFisicoJugador,1000);
             that.colliderJugador.name = "collider_jugador";
             that.colliderJugador.position.set(10,2,10);
@@ -197,10 +195,12 @@ class Escena extends Physijs.Scene{
                 if(item[1] == "manzana"){
                     //Sumar puntos
                     that.points += 5;
-                    if(that.points % 10 == 0){
+                    that.timer += 60 * that.addSecondsTimer; //añade 3 segundos
+                    //Aumento de dificultad relativa a los puntos
+                    if(that.points % that.everyPointsSpeed == 0){
                         that.velocidad.x += 5;
                         that.velocidad.z += 5;
-                        if(that.points % 20 && that.everyXFrames >= 60){
+                        if(that.points % that.everyFramesInstance && that.everyXFrames >= 60){
                             that.everyXFrames -= 10;
                         }
                     }
@@ -219,20 +219,30 @@ class Escena extends Physijs.Scene{
         }, 1000);
     }
 
+    //Animaciones IDLE y de salto del jugador (una de subida y otra de bajada)
     animacionesSalto(){
         var that = this;
-        this.pathSaltoJugadorUp = new THREE.Vector3( that.getObjectByName("collider_jugador").position.x, 10, that.getObjectByName("collider_jugador").position.z );
-        this.animacionSalto = new TWEEN.Tween(that.getObjectByName("collider_jugador").position).to(this.pathSaltoJugadorUp, 500*that.speed)
+
+        //Animación IDLE jugador
+        this.pathIdleJugador = new THREE.Vector3( this.getObjectByName("jugador").position.x, 0.1, this.getObjectByName("jugador").position.z );
+        this.animacionJugador = new TWEEN.Tween(this.getObjectByName("jugador").position).to(this.pathIdleJugador, 250*this.speed)
+        .easing(TWEEN.Easing.Quadratic.In)
+        .repeat(Infinity)
+        .yoyo(true)
+        .start();
+
+        //Animación salto primera parte jugador
+        this.pathSaltoJugadorUp = new THREE.Vector3( this.getObjectByName("collider_jugador").position.x, 10, this.getObjectByName("collider_jugador").position.z );
+        this.animacionSalto = new TWEEN.Tween(this.getObjectByName("collider_jugador").position).to(this.pathSaltoJugadorUp, 500*this.speed)
         .easing(TWEEN.Easing.Quadratic.In)
         .onUpdate(function(){
             that.colliderJugador.__dirtyPosition = true;
         });
 
-        this.pathSaltoJugadorDown = new THREE.Vector3( that.getObjectByName("collider_jugador").position.x, 2, that.getObjectByName("collider_jugador").position.z );
-        this.animacionSaltoDown = new TWEEN.Tween(that.getObjectByName("collider_jugador").position).to(this.pathSaltoJugadorDown, 500*that.speed)
+        //Animación salto segunda parte jugador
+        this.pathSaltoJugadorDown = new THREE.Vector3( this.getObjectByName("collider_jugador").position.x, 2, this.getObjectByName("collider_jugador").position.z );
+        this.animacionSaltoDown = new TWEEN.Tween(this.getObjectByName("collider_jugador").position).to(this.pathSaltoJugadorDown, 500*this.speed)
         .easing(TWEEN.Easing.Quadratic.In)
-        .onUpdate(function(){
-        })
         .onComplete(function(){
             that.colliderJugador.__dirtyPosition = true;
             that.colliderJugador.puedeSaltar = true;
@@ -291,6 +301,7 @@ class Escena extends Physijs.Scene{
         }
     };
     
+    //Generador común de prefabs de forma parametrizada
     instanciarPrefab(scene,prefab,cuenta,posicion){
         var that = this;
         var nombre = prefab+"_"+cuenta;
@@ -333,6 +344,7 @@ class Escena extends Physijs.Scene{
         });
 
          var that = this;
+         //Función que utiliza variables declaradas dinámicamente para asignar un collider a cada objeto creado.
         setTimeout(function(){
             var masa = 0.1;
             that['collider_'+nombre] = new Physijs.BoxMesh(new THREE.BoxGeometry(1,0.5,1), that.matFisico, masa);
@@ -355,29 +367,33 @@ class Escena extends Physijs.Scene{
 
     }
 
+    //Crea la barrera que elimina los objetos que pasan al jugador
     crearBarrera(){
         var matFisicoBarrera = Physijs.createMaterial(new THREE.MeshBasicMaterial({color: 0x888888, opacity: 0.2, transparent: true}));
         this.colliderBarrera = new Physijs.BoxMesh(new THREE.BoxGeometry(2,4,0.2), matFisicoBarrera,0,.1);
         this.colliderBarrera.name = "collider_barrera";
-        this.colliderBarrera.position.set(40,2,40);
+        this.colliderBarrera.position.set(50,2,50);
         this.colliderBarrera.rotation.y = 0.77;
         this.colliderBarrera.scale.set(20,20,20);
         //Gestión de colisiones con el objeto jugador
         var that = this;
         this.colliderBarrera.addEventListener('collision', function(objeto){
-            //console.log("HA CHOCADO EL OBJETO "+objeto.name+" CON LA BARRERA, SE ELIMINA");
             that.contadorObstaculosEsquivados++;
+            that.getObjectByName(objeto.name).setAngularVelocity(new THREE.Vector3(1,0,1));
+            that.getObjectByName(objeto.name).setLinearVelocity(new THREE.Vector3(1,0,1));
             that.remove(that.getObjectByName(objeto.name));
         });
         this.add(this.colliderBarrera);
     }
 
+    //Obtiene posiciones y prefabs aleatorios [0..2]
     instanciadorAleatorio(){
         var posicion = this.objectPositions[Math.round(Math.random()*2)];
         var prefab = this.prefabs[Math.round(Math.random()*2)];
         this.instanciarPrefab(this,prefab,++this.contadorPrefabs[prefab],posicion);
     }
 
+    //Crea la iluminación de la escena
     crearLuces(){
         //Definicion y añadido a escena de la luz ambiental (color en zonas no iluminadas)
         var luzAmbiente = new THREE.AmbientLight(0xccddee,1);
@@ -396,6 +412,7 @@ class Escena extends Physijs.Scene{
         this.add(this.luzPos);
     }
 
+    //Render de la escena
     crearRenderizador(myCanvas){
         var renderizador = new THREE.WebGLRenderer({alpha:true});
         
@@ -410,6 +427,7 @@ class Escena extends Physijs.Scene{
         return renderizador;
     }
 
+    //Controla el evento de cambio de tamaño de la ventana
     onWindowResize(){
         this.camara.aspect = window.innerWidth/window.innerHeight;
         this.camara.updateProjectionMatrix();
@@ -417,10 +435,13 @@ class Escena extends Physijs.Scene{
         this.renderizador.setSize(window.innerWidth,window.innerHeight);
     }
 
+    //Fn que da movimiento a los objetos nuevos añadidos a escena y los elimina del array para no aplicarles más veces la velocidad
     iniciarMovimiento(){
         if(this.nuevosObjetos.length > 0){
             var that = this;
             this.nuevosObjetos.forEach(function(element,index, object){
+                element.setCcdMotionThreshold(1);
+                element.setCcdSweptSphereRadius(0.2);
                 element.setLinearVelocity(that.velocidad);
                 object.splice(index,1);
             });
@@ -428,26 +449,35 @@ class Escena extends Physijs.Scene{
         
     }
 
+    //Muestra el resumen de puntuación y pausa las físicas y animaciones
     showResume(){
         document.getElementById("obstaculos").innerHTML = this.contadorObstaculosEsquivados;
         document.getElementById("puntuacion").innerHTML = this.points;
         document.getElementById("resumen").style.display = "block";
+        if(this.timer == 0){
+            document.getElementById("warningTiempo").style.display = "inline";
+        }
         this.isPaused = true;
     }
 
     update(){
         requestAnimationFrame(() => this.update());
         this.iniciarMovimiento();
-        
+
         this.camaraControl.update();
         this.renderizador.render(this, this.camara);
-        if(this.gameOver){
+        //Si la partida ha acabado
+        if(this.gameOver || this.timer == 0){
             this.showResume();
         }
+        //Si el juego está pausado no se actualiza la simulación de física ni las animaciones
         if(!this.isPaused){
             TWEEN.update();
             this.simulate();
             this.countFrames++;
+            this.timer--;
+            document.getElementById("tiempo").innerHTML = "Tiempo: " +parseInt(this.timer/60);
+            //Llama al instanciador aleatorio cada X frames (120 frames +- 2 segundos)
             if(this.countFrames % this.everyXFrames == 0){
                 this.countFrames = 1; //Para que no desborde
                 this.instanciadorAleatorio();
